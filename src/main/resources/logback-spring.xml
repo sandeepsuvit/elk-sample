@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<!-- Extending the default configurations -->
-	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-	
+	<include
+		resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<include
+		resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
 	<!-- Accessing configurations from properties files -->
 	<property resource="application.properties" />
-	<property resource="application.${spring.profiles.active}.properties" />
-	
-	<property name="LOG_PATH" value="${logger.path}"/>
-	<property name="LOG_FILE" value="${logger.file.name}"/>
+	<property
+		resource="application.${spring.profiles.active}.properties" />
+
+	<property name="LOG_PATH" value="${logger.path}" />
+	<property name="LOG_FILE" value="${logger.file.name}" />
+	<property name="LOGSTASH_HOST" value="${logstash.host}" />
+	<property name="LOGSTASH_PORT" value="${logstash.port}" />
 	<!-- User for identifying the service name -->
-	<property scope="context" name="logger.type" value="${spring.application.name}"></property>
-	
-	<springProperty scope="context" name="locLogLevel" source="logging.loc.loglevel" defaultValue="INFO"/>
-	<springProperty scope="context" name="devLogLevel" source="logging.dev.loglevel" defaultValue="DEBUG"/>
-    <springProperty scope="context" name="uatLogLevel" source="logging.staging.loglevel" defaultValue="DEBUG"/>
-    <springProperty scope="context" name="prodLogLevel" source="logging.production.loglevel" defaultValue="INFO"/>
+	<property scope="context" name="logger_type"
+		value="${spring.application.name}"></property>
+
+	<springProperty scope="context" name="locLogLevel"
+		source="logging.loc.loglevel" defaultValue="INFO" />
+	<springProperty scope="context" name="devLogLevel"
+		source="logging.dev.loglevel" defaultValue="DEBUG" />
+	<springProperty scope="context" name="uatLogLevel"
+		source="logging.staging.loglevel" defaultValue="DEBUG" />
+	<springProperty scope="context" name="prodLogLevel"
+		source="logging.production.loglevel" defaultValue="INFO" />
 
 	<!-- Disable any internal logback logs to appear -->
 	<statusListener
@@ -34,37 +44,49 @@
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
 			<!-- roll over daily -->
-			<fileNamePattern>${LOG_PATH}/archived-logs/${LOG_FILE}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-			<!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
+			<fileNamePattern>${LOG_PATH}/archived-logs/${LOG_FILE}-%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<!-- each file should be at most 100MB, keep 60 days worth of history, 
+				but at most 20GB -->
 			<maxFileSize>100MB</maxFileSize>
 			<!-- How many days to keep the file -->
 			<maxHistory>60</maxHistory>
 			<!-- Total file size of the archives -->
 			<totalSizeCap>200MB</totalSizeCap>
 		</rollingPolicy>
-		
+
 		<!-- Encoding pattern -->
 		<encoder
 			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
 			<Pattern>
-				%d{dd-MM-yyyy HH:mm:ss.SSS} ${logger.type} %magenta([%thread]) %highlight(%-5level) %logger.%M - %msg%n
+				%d{dd-MM-yyyy HH:mm:ss.SSS} ${logger_type} %magenta([%thread]) %highlight(%-5level) %logger.%M - %msg%n
 			</Pattern>
 		</encoder>
+	</appender>
+	
+	<!-- Used for logstash with TCP Appender -->
+	<appender name="STASH"
+		class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+		<destination>${LOGSTASH_HOST}:${LOGSTASH_PORT}</destination>
+
+		<!-- encoder is required -->
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder" />
 	</appender>
 
 	<!-- Asynchronous appender -->
 	<appender name="ASYNC"
 		class="ch.qos.logback.classic.AsyncAppender">
 		<appender-ref ref="FILE" />
+		<appender-ref ref="STASH" />
 	</appender>
 
 	<!-- Appender configurations - END -->
-	
+
 	<!-- Profile configurations for environments - START -->
-	
+
 	<!-- Configuration for STDOUT and SAVE-TO-FILE for LOC -->
 	<springProfile name="loc">
-		<!--  All logs will be part of the console only -->
+		<!-- All logs will be part of the console only -->
 		<root level="${locLogLevel}">
 			<appender-ref ref="CONSOLE" />
 		</root>
@@ -78,13 +100,14 @@
 			<!-- Print root logs in the file -->
 			<appender-ref ref="ASYNC" />
 		</root>
-		
+
 		<!-- Enable debug log in services package -->
-		<logger name="com.trio" additivity="false" level="${devLogLevel}">
+		<logger name="com.trio" additivity="false"
+			level="${devLogLevel}">
 			<appender-ref ref="ASYNC" />
 		</logger>
 	</springProfile>
-	
+
 	<!-- Configuration for STDOUT and SAVE-TO-FILE for UAT -->
 	<springProfile name="uat">
 		<root level="${uatLogLevel}">
@@ -93,9 +116,10 @@
 			<!-- Print root logs in the file -->
 			<appender-ref ref="ASYNC" />
 		</root>
-		
+
 		<!-- Enable debug log in services package -->
-		<logger name="com.trio" additivity="false" level="${uatLogLevel}">
+		<logger name="com.trio" additivity="false"
+			level="${uatLogLevel}">
 			<appender-ref ref="ASYNC" />
 		</logger>
 	</springProfile>
@@ -110,11 +134,12 @@
 		</root>
 
 		<!-- Enable debug log in services package -->
-		<logger name="com.trio" additivity="false" level="${prodLogLevel}">
+		<logger name="com.trio" additivity="false"
+			level="${prodLogLevel}">
 			<appender-ref ref="ASYNC" />
 		</logger>
 	</springProfile>
-	
+
 	<!-- Profile configurations for environments - END -->
 
 </configuration>
