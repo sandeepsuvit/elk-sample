@@ -6,6 +6,8 @@ services:
       volumes:
         # Persist elastic search data
         - ./elk-data/elasticsearch:/var/lib/elasticsearch
+        # Externalize configuration for elasticsearch
+        - ./elk-config/etc/elasticsearch/elasticsearch.yml:/etc/elasticsearch/elasticsearch.yml
         # Externalize configuration for logstash
         - ./elk-config/opt/logstash/config/logstash.yml:/opt/logstash/config/logstash.yml
         # Externalize configuration for kibana
