@@ -89,6 +89,8 @@
 		<!-- All logs will be part of the console only -->
 		<root level="${locLogLevel}">
 			<appender-ref ref="CONSOLE" />
+			<!-- Testing logstash -->
+			<appender-ref ref="STASH" />
 		</root>
 	</springProfile>
 

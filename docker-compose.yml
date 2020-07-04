@@ -5,13 +5,18 @@ services:
       image: sebp/elk
       volumes:
         # Persist elastic search data
-        - /Users/sandeepknair/Documents/Work/Development/JAVA/Workspace-trio/elk-sample/elk-data:/var/lib/elasticsearch
+        - ./elk-data/elasticsearch:/var/lib/elasticsearch
         # Externalize configuration for logstash
-        - /Users/sandeepknair/Documents/Work/Development/JAVA/Workspace-trio/elk-sample/elk-config/logstash/conf.d/30-output.conf:/etc/logstash/conf.d/30-output.conf
-        # If using file appenders enable this
+        - ./elk-config/opt/logstash/config/logstash.yml:/opt/logstash/config/logstash.yml
+        # Externalize configuration for kibana
+        - ./elk-config/opt/kibana/config/kibana.yml:/opt/logstash/config/kibana.yml
+        # Logstash log monitor configuration
+        - ./elk-config/etc/logstash/conf.d/30-output.conf:/etc/logstash/conf.d/30-output.conf
+        # Logstash log monitor configuration - Enable this if using log file for monitoring
         # - /Users/sandeepknair/Documents/temp/elk:/logs
       ports:
         - "5601:5601"
         - "9200:9200"
         - "5044:5044"
-        - "5043:5043"
+        # Logstash bind to port
+        - "5000:5000"
