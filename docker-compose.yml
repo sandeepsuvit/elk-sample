@@ -13,7 +13,8 @@ services:
         # Externalize configuration for kibana
         - ./elk-config/opt/kibana/config/kibana.yml:/opt/logstash/config/kibana.yml
         # Logstash log monitor configuration
-        - ./elk-config/etc/logstash/conf.d/30-output.conf:/etc/logstash/conf.d/30-output.conf
+        # - ./elk-config/etc/logstash/conf.d/30-output.conf:/etc/logstash/conf.d/30-output.conf
+        - ./elk-config/etc/logstash/conf.d:/etc/logstash/conf.d
         # Logstash log monitor configuration - Enable this if using log file for monitoring
         # - /Users/sandeepknair/Documents/temp/elk:/logs
       ports:
